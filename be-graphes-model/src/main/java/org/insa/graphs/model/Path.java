@@ -3,6 +3,7 @@ package org.insa.graphs.model;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Iterator;
 
 /**
  * <p>
@@ -30,7 +31,49 @@ public class Path {
     public static Path createFastestPathFromNodes(Graph graph, List<Node> nodes)
             throws IllegalArgumentException {
         List<Arc> arcs = new ArrayList<Arc>();
-        // TODO:
+        double tps_Min = 10000000;
+        Arc arc_Min = null; 
+        int nb_Arcs_Dest = -1;
+        Arc arc_Current;
+        Node node_Current;
+        Node node_Next =null;
+
+        Iterator <Node> node = nodes.iterator();
+        node_Current = node.next();
+        while(node.hasNext()){
+            node_Current = node_Next;
+
+            if (!node_Current.hasSuccessors()){
+                throw new IllegalArgumentException("Liste noeuds invalide");
+            }
+
+            Iterator <Arc> arc = node_Current.getSuccessors().iterator();
+            while (arc.hasNext()){
+                arc_Current  = arc.next();
+                node_Next = node.next();
+                if(arc_Current.getDestination().equals(node_Next)){
+                    nb_Arcs_Dest++;
+                    if (arc_Current.getMinimumTravelTime() < tps_Min){
+                        tps_Min = arc_Current.getMinimumTravelTime();
+                        arc_Min = arc_Current;                        
+                    }
+                }
+            }
+            //Si le node next n'existe pas dans les successeurs du noeud courant-->exception
+            if (nb_Arcs_Dest == 0){
+                throw new IllegalArgumentException("Liste noeuds invalide");
+            }
+            else{
+                //Ajout du plus court arc à la liste d'arcs à retrun à la fin
+                arcs.add(arc_Min);            
+
+                //Réinitialisation du temps min pour le Node prochain
+                tps_Min = 10000000;
+
+            }
+
+        }
+
         return new Path(graph, arcs);
     }
 
